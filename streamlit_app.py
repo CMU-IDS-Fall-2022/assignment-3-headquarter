@@ -131,6 +131,46 @@ newDf = data_clean(df)
 
 st.dataframe(newDf)
 
-st.map(newDf)
+# st.map(newDf)
+
+
+################################
+#Version one: Background map + interactive points
+
+counties = alt.topo_feature(data.us_10m.url, feature='counties')
+
+#US states background
+background = alt.Chart(counties).mark_geoshape(
+    fill='lightgray',
+    stroke='white'
+).properties(
+    width=500,
+    height=300
+).project('albersUsa').interactive()
+
+click = alt.selection_multi(encodings=['color'])
+
+# restaurant positions on background
+points = alt.Chart(newDf).mark_circle().encode(
+    longitude='longitude:Q',
+    latitude='latitude:Q',
+    color=alt.value('steelblue'),
+    tooltip=['name:N']
+).properties(
+    title='Restaurants in Phili'
+).transform_filter(
+    click
+)
+
+hist = alt.Chart(newDf).mark_bar().encode(
+    x='count()',
+    y='stars',
+    color=alt.condition(click, 'stars', alt.value('lightgray'))
+).add_selection(
+    click
+)
+
+st.altair_chart(background + points & hist)
+
 
 st.markdown("This project was created by Hazel Zhang and Qianru Zhang for the [Interactive Data Science](https://dig.cmu.edu/ids2022) course at [Carnegie Mellon University](https://www.cmu.edu).")
