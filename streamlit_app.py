@@ -2,7 +2,8 @@ import streamlit as st
 import pandas as pd
 import altair as alt
 import json
-from vega_datasets import data
+#from vega_datasets import data
+import geopandas as gpd
 
 st.title("Let's analyze some Food Data in Philadaphia.")
 
@@ -137,16 +138,28 @@ st.dataframe(newDf)
 ################################
 #Version one: Background map + interactive points
 
-counties = alt.topo_feature(data.us_10m.url, feature='counties')
 
-#US states background
-background = alt.Chart(counties).mark_geoshape(
-    fill='lightgray',
-    stroke='white'
+##US states background
+#counties = alt.topo_feature(data.us_10m.url, feature='counties')
+#background = alt.Chart(counties).mark_geoshape(
+#    fill='lightgray',
+#    stroke='white'
+#).properties(
+#    width=500,
+#    height=300
+#).project('albersUsa')
+
+gdf = gpd.read_file('Neighborhoods_Philadelphia.shp')
+#Creating an altair map layer
+choro = alt.Chart(gdf).mark_geoshape(
+    stroke='black'
+).encode(
+    color=color
+#    tooltip=['state','count']
 ).properties(
     width=500,
     height=300
-).project('albersUsa').interactive()
+)
 
 click = alt.selection_multi(encodings=['color'])
 
@@ -170,7 +183,7 @@ hist = alt.Chart(newDf).mark_bar().encode(
     click
 )
 
-st.altair_chart(background + points & hist)
+st.altair_chart(choro + points & hist)
 
 
 st.markdown("This project was created by Hazel Zhang and Qianru Zhang for the [Interactive Data Science](https://dig.cmu.edu/ids2022) course at [Carnegie Mellon University](https://www.cmu.edu).")
