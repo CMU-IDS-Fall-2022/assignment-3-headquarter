@@ -268,26 +268,18 @@ def create_map_figure(df):
     # create the base map
     map = folium.Map(location=[39.99, -75.13], zoom_start=11)
 
-    # marker_cluster = MarkerCluster().add_to(map)
     
     # add restaurant to map
-    feature_group = folium.FeatureGroup("Locations")
     latList, lngList, nameList, addressList, starList, priceList= df['latitude'].to_list(), df['longitude'].to_list(), df['name'].to_list(), df['address'].to_list(), df['stars'].to_list(), df['price_range'].to_list()
+    marker_cluster = MarkerCluster().add_to(map)
     for lat, lng, name, address, star, price in zip(latList, lngList, nameList, addressList, starList, priceList):
-        feature_group.add_child(folium.Marker(location=[lat,lng],
+        folium.Marker(location=[lat,lng],
                                               tooltip=""" 
                                                 <i>Name: </i> <br> <b>{}</b> <br> 
                                                 <i>Address: </i><b><br>{}</b><br>
                                                 <i>Stars: </i><b><br>{}</b><br>
                                                 <i>Price Range: </i><b><br>{}</b><br>
-                                              """.format(name,address,star,price)))
-    
-    locations = list(zip(latList,lngList))
-    marker_cluster = MarkerCluster(locations)
-    marker_cluster.add_to(map)
-
-    map.add_child(marker_cluster)
-
+                                              """.format(name,address,star,price)).add_to(marker_cluster)
 
 
     return map
@@ -321,7 +313,7 @@ elif sideChoice == "Data ETL":
 elif sideChoice == "Food Map":
     st.header("Food Map")
     st.subheader("Restaurant categoaries")
-    categorySelected = st.multiselect('Categories', SELECTED_CATEGOARIES)
+    categorySelected = st.multiselect('Categories', SELECTED_CATEGOARIES, default = ["Bars"])
 
     # Filter the data by selection
     filterDf = select_data_by_filter(newDf, categorySelected)
