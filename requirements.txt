@@ -1,3 +1,6 @@
 streamlit
 pandas
 altair
+json
+folium
+streamlit_folium
