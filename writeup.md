@@ -2,13 +2,9 @@
 
 ![A screenshot of your application. Could be a GIF.](screenshot.png)
 
-TODO: Update screenshot
-
-TODO: Short abstract describing the main goals and how you achieved them.
-
 ## Project Goals
 
-TODO: **A clear description of the goals of your project.** Describe the question that you are enabling a user to answer. The question should be compelling and the solution should be focused on helping users achieve their goals.
+**A clear description of the goals of your project.** 
 
 - What is the price range & star distribution of different categories of restaurants in Philadelphia? 
 - Are there any differences between different categories?
@@ -16,7 +12,7 @@ TODO: **A clear description of the goals of your project.** Describe the questio
 
 ## Design
 
-TODO: **A rationale for your design decisions.** How did you choose your particular visual encodings and interaction techniques? What alternatives did you consider and how did you arrive at your ultimate choices?
+**A rationale for your design decisions.** 
 
 To answer the questions above, we would like to design functions including:
 
@@ -42,8 +38,7 @@ Alternatives we considered
 
 ## Development
 
-TODO: **An overview of your development process.** Describe how the work was split among the team members. Include a commentary on the development process, including answers to the following questions: Roughly how much time did you spend developing your application (in people-hours)? What aspects took the most time?
-
+**An overview of your development process.** 
 
 - At first, we worked together on the Exploratory Data Analysis and decided on the dataset we would like to work on, the data we need, and interaction techniques we want to include in our app.
 - We split the work to data cleaning and interaction implementation among 2 of us. When encountering problems, we would schedule a meeting to discuss the blocks together.
@@ -52,6 +47,6 @@ TODO: **An overview of your development process.** Describe how the work was spl
 
 ## Success Story
 
-TODO:  **A success story of your project.** Describe an insight or discovery you gain with your application that relates to the goals of your project.
+**A success story of your project.** 
 
 - In Philadelphia, bars are significantly more than other restaurants. And the price range of bars are relatively higher. Also, bars usually have good stars.
