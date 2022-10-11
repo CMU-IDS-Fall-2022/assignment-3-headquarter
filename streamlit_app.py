@@ -239,6 +239,7 @@ def plot_altair(df, categorySelected):
 import streamlit as st
 import folium
 from streamlit_folium import st_folium
+from folium.plugins import MarkerCluster
 
 
 # Load Data
@@ -266,6 +267,8 @@ def create_map_figure(df):
     '''
     # create the base map
     map = folium.Map(location=[39.99, -75.13], zoom_start=11)
+
+    # marker_cluster = MarkerCluster().add_to(map)
     
     # add restaurant to map
     feature_group = folium.FeatureGroup("Locations")
@@ -278,7 +281,14 @@ def create_map_figure(df):
                                                 <i>Stars: </i><b><br>{}</b><br>
                                                 <i>Price Range: </i><b><br>{}</b><br>
                                               """.format(name,address,star,price)))
-    map.add_child(feature_group)
+    
+    locations = list(zip(latList,lngList))
+    marker_cluster = MarkerCluster(locations)
+    marker_cluster.add_to(map)
+
+    map.add_child(marker_cluster)
+
+
 
     return map
 
