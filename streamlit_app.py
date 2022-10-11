@@ -358,21 +358,21 @@ def data_clean(df, selectCategList):
 #       3. Data Interactive Filter
 ###############################################################################
 
-def select_data_by_filter(df, isDelivery, isTakeout, isAccess, priceRange, categorySelected):
+def select_data_by_filter(df, categorySelected):
     """
     This function help to filter the data by user selected filters
     """
     newDf = df.copy()
 
-    if isDelivery:
-        newDf = newDf[newDf['delivery']=='True']
-    if isTakeout:
-        newDf = newDf[newDf['takeout']=='True']
-    if isAccess:
-        newDf = newDf[newDf['wheelchair_access']=='True']
+    # if isDelivery:
+    #     newDf = newDf[newDf['delivery']=='True']
+    # if isTakeout:
+    #     newDf = newDf[newDf['takeout']=='True']
+    # if isAccess:
+    #     newDf = newDf[newDf['wheelchair_access']=='True']
     
-    if priceRange != 'ALL':
-        newDf = newDf[(newDf['price_range']<=int(priceRange)) & (newDf['price_range']>0)]
+    # if priceRange != 'ALL':
+    #     newDf = newDf[(newDf['price_range']<=int(priceRange)) & (newDf['price_range']>0)]
     
     newDf = filter_by_categoary(newDf, categorySelected)
     return newDf
@@ -398,41 +398,57 @@ def get_name_address(df):
 #       4. Altair Plots
 ###############################################################################
 
-def plot_scatter(df):
-    """
-    This function plot the review count and star scatter for the selected restaurants
-    """
-    #df = df.explode('categories').reset_index(drop=True)
-    scatter = alt.Chart(df).mark_point().encode(
-        alt.X("review_count", scale=alt.Scale(zero=False), title="Review Count"),
-        alt.Y("stars", scale=alt.Scale(zero=False), title="Star")
-    )
-    return scatter
+# def plot_scatter(df):
+#     """
+#     This function plot the review count and star scatter for the selected restaurants
+#     """
+#     #df = df.explode('categories').reset_index(drop=True)
+#     scatter = alt.Chart(df).mark_point().encode(
+#         alt.X("review_count", scale=alt.Scale(zero=False), title="Review Count"),
+#         alt.Y("stars", scale=alt.Scale(zero=False), title="Star")
+#     )
+#     return scatter
 
 
-def plot_histogram(df):
-    """
-    This function plot the star histogram for the selected restaurants
-    """
-    #df = df.explode('categories').reset_index(drop=True)
-    hist = alt.Chart(df).mark_bar().encode(
-        alt.X("stars", bin=alt.Bin(maxbins=5), title="Star"),
-        alt.Y("count()", title="The number of stars")
-    )
-    return hist
+# def plot_histogram(df):
+#     """
+#     This function plot the star histogram for the selected restaurants
+#     """
+#     #df = df.explode('categories').reset_index(drop=True)
+#     hist = alt.Chart(df).mark_bar().encode(
+#         alt.X("stars", bin=alt.Bin(maxbins=5), title="Star"),
+#         alt.Y("count()", title="The number of stars")
+#     )
+#     return hist
 
 
-def plot_rule(df):
-    """
-    This function plot the average restartaurant star
-    """
-    #df = df.explode('categories').reset_index(drop=True)
-    rule = alt.Chart(df).mark_rule().encode(
-        alt.Y("stars", title="Star"),
-        alt.Color("categories")
-    )
-    return rule
+# def plot_rule(df):
+#     """
+#     This function plot the average restartaurant star
+#     """
+#     #df = df.explode('categories').reset_index(drop=True)
+#     rule = alt.Chart(df).mark_rule().encode(
+#         alt.Y("stars", title="Star"),
+#         alt.Color("categories")
+#     )
+#     return rule
 
+def plot_binnedscatter(df):
+	binned_scatter = alt.Chart(df).mark_circle().encode(
+    	alt.X('stars', bin=True, title="Star"),
+    	alt.Y('price_range', bin=True, title="Price Range"),
+    	size='count()'
+	)
+
+	return binned_scatter
+
+def plot_hist(df):
+	hist = alt.Chart(df).mark_bar().encode(
+    	alt.Y('categories'),
+    	alt.X('count()')
+	)
+
+	return hist
 
 def plot_altair(df, categorySelected):
     """
@@ -440,18 +456,31 @@ def plot_altair(df, categorySelected):
     """
     df = df.explode('categories').reset_index(drop=True)
     df = df[df['categories'].isin(categorySelected)]
-    scatter = plot_scatter(df)
-    hist = plot_histogram(df)
-    rule = plot_rule(df)
+    # scatter = plot_scatter(df)
+    # hist = plot_histogram(df)
+    # rule = plot_rule(df)
 
-    selection = alt.selection_interval()
-    fig = scatter.add_selection(selection).encode(
-        color=alt.condition(selection, "categories", alt.value("grey"))
-    ) + rule | hist.encode(
+    # selection = alt.selection_interval()
+    # fig = scatter.add_selection(selection).encode(
+    #     color=alt.condition(selection, "categories", alt.value("grey"))
+    # ) + rule | hist.encode(
+    #     alt.Color("categories")
+    # ).transform_filter(selection)
+
+    single = alt.selection_interval()
+
+    binned_scatter = plot_binnedscatter(df)
+    hist = plot_hist(df)
+
+    binned_scatter = binned_scatter.add_selection(single).encode(
+        color=alt.condition(single, "stars", alt.value("grey"))
+    ) 
+
+    hist = hist.encode(
         alt.Color("categories")
-    ).transform_filter(selection)
+    ).transform_filter(single)
 
-    return fig
+    return alt.vconcat(binned_scatter, hist)
 
 ##################################################################################
 ##################################################################################
@@ -490,9 +519,15 @@ def create_map_figure(df):
     
     # add restaurant to map
     feature_group = folium.FeatureGroup("Locations")
-    latList, lngList, nameList = df['latitude'].to_list(), df['longitude'].to_list(), df['name'].to_list()
-    for lat, lng, name in zip(latList, lngList, nameList):
-        feature_group.add_child(folium.Marker(location=[lat,lng],popup=name))
+    latList, lngList, nameList, addressList, starList, priceList= df['latitude'].to_list(), df['longitude'].to_list(), df['name'].to_list(), df['address'].to_list(), df['stars'].to_list(), df['price_range'].to_list()
+    for lat, lng, name, address, star, price in zip(latList, lngList, nameList, addressList, starList, priceList):
+        feature_group.add_child(folium.Marker(location=[lat,lng],
+                                              tooltip=""" 
+                                              <i>Name: </i> <br> <b>{}</b> <br> 
+                                                <i>Address: </i><b><br>{}</b><br>
+                                                <i>Stars: </i><b><br>{}</b><br>
+                                                <i>Price Range: </i><b><br>{}</b><br>
+                                              """.format(name,address,star,price)))
     map.add_child(feature_group)
 
     return map
@@ -525,17 +560,17 @@ elif sideChoice == "Data ETL":
 ##################################################################################
 elif sideChoice == "Food Map":
     st.header("Food Map")
-    st.subheader("Restaurant filters")
-    isDelivery = st.checkbox('Delivery', key='delivery')
-    isTakeout = st.checkbox('Takeout', key='takeout')
-    isAccess = st.checkbox('Wheelchair Access', key='accessibility')
-    priceRange = st.select_slider('Pick a price range', ['1', '2', '3', '4', 'ALL'])
+    # st.subheader("Restaurant filters")
+    # isDelivery = st.checkbox('Delivery', key='delivery')
+    # isTakeout = st.checkbox('Takeout', key='takeout')
+    # isAccess = st.checkbox('Wheelchair Access', key='accessibility')
+    # priceRange = st.select_slider('Pick a price range', ['1', '2', '3', '4', 'ALL'])
 
     st.subheader("Restaurant categoaries")
     categorySelected = st.multiselect('Categories', SELECTED_CATEGOARIES)
 
     # Filter the data by selection
-    filterDf = select_data_by_filter(newDf, isDelivery, isTakeout, isAccess, priceRange, categorySelected)
+    filterDf = select_data_by_filter(newDf, categorySelected)
 
     # Plot the map and the selected restaurants
     st.subheader("Restaurant locations")
@@ -551,10 +586,10 @@ elif sideChoice == "Food Map":
     alt_fig = plot_altair(selectDf, categorySelected)
     st.altair_chart(alt_fig)
 
-    # Show the address and name of the restaurants
-    st.subheader("Restaurant names and addresses")
-    dfNameAddress = get_name_address(selectDf)
-    st.dataframe(dfNameAddress, use_container_width=True)
+    # # Show the address and name of the restaurants
+    # st.subheader("Restaurant names and addresses")
+    # dfNameAddress = get_name_address(selectDf)
+    # st.dataframe(dfNameAddress, use_container_width=True)
 
 ##################################################################################
 ##################################################################################
