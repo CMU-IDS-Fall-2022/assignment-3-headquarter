@@ -43,7 +43,7 @@ Alternatives we considered
 - At first, we worked together on the Exploratory Data Analysis and decided on the dataset we would like to work on, the data we need, and interaction techniques we want to include in our app.
 - We split the work to data cleaning and interaction implementation among 2 of us. When encountering problems, we would schedule a meeting to discuss the blocks together.
 - The data cleaning took about 13 hours. The interaction implementaton took about 12 hours.
-- Time-consuming aspects: explore the data, find the right interaction tools
+- Time-consuming aspects: explore the data, find the right interaction tools, try to submit the big date file to the GIT
 
 ## Success Story
 
