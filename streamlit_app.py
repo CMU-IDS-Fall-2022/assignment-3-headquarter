@@ -22,15 +22,26 @@ def check_json_fmt(line):
     return data
 
 
-@st.experimental_memo
-def load_data(file):
+def load_data_helper(file):
     raw_data = open(file, encoding="utf-8").readlines()
+    #print ('Number of rows in the file: %d' % (len(raw_data)))
     filter_data = []
     for line in raw_data:
         data = check_json_fmt(line)
         if data != None:
             filter_data.append(data)        
-    df = json_normalize(filter_data)
+    return filter_data
+
+
+@st.experimental_memo
+def load_data(file):
+    file1 = 'yelp_academic_dataset_business_part1.json'
+    file2 = 'yelp_academic_dataset_business_part2.json'
+    data1 = load_data_helper(file1)
+    data2 = load_data_helper(file2)
+    df = json_normalize(data1+data2)
+    #df = pd.json_normalize(data1+data2)
+    #df.info(verbose=True)
     return df
 
 ###############################################################################
